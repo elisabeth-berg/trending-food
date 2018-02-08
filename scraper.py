@@ -6,7 +6,7 @@ import requests
 
 def get_urls(page):
     '''
-    INPUT: page number
+    INPUT: page number (integer between 1 and 203)
     OUTPUT: list of urls of recipes on this page
 
     Find the permalink for each recipe on a given page of https://food52.com
@@ -19,8 +19,16 @@ def get_urls(page):
 
 def get_ingredients(href):
     '''
-    INPUT: href for a Food52 recipe's permalink
-    OUTPUT:
+    INPUT
+    ------
+    href: href for a Food52 recipe's permalink
+
+    OUTPUT
+    ------
+    A tuple containing
+    date: pd Timestamp, the date of the posting
+    title: str, the title of the recipe
+    foods: list of strings, the recipe ingredients
     '''
     response = requests.get("https://food52.com/" + href)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -28,5 +36,7 @@ def get_ingredients(href):
     title = soup.find("h1", {"class" : "article-header-title"})
     title = title.text.strip()
     title = title.replace('\xa0', ' ')
+    date = soup.find("p", {'data-bind' :"with: comments"}).text.split("\n")[1].strip()[2:]
+    date = pd.to_datetime(date)
     foods = [food.text.strip() for food in ingredients]
-    return (title, foods)
+    return (date, title, foods)
