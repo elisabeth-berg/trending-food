@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
+import psycopg2
 
 
 def get_urls(page):
@@ -38,5 +39,38 @@ def get_ingredients(href):
     title = title.replace('\xa0', ' ')
     date = soup.find("p", {'data-bind' :"with: comments"}).text.split("\n")[1].strip()[2:]
     date = pd.to_datetime(date)
-    foods = [food.text.strip() for food in ingredients]
+    foods = {food.text.strip().lower() for food in ingredients}
+    foods = ' '.join(foods)
     return (date, title, foods)
+
+
+def store_all_data():
+    """
+    Query all pages, store the results in food_db.
+    Note that the database is cleared first!
+    """
+    conn = psycopg2.connect("dbname=food_db")
+    cur = conn.cursor()
+    conn.autocommit = True
+    cur.execute("""DELETE FROM recipes;""")
+    for page in range(1, 204):
+        store_page_data(page)
+
+
+def store_page_data(page):
+    """
+    Store the recipe results from a single page into food_db. 
+    """
+    conn = psycopg2.connect("dbname=food_db")
+    cur = conn.cursor()
+    conn.autocommit = True
+    urls = get_urls(page)
+    for url in urls:
+        recipe_data = get_ingredients(url)
+        query = """
+            INSERT INTO
+            recipes (post_date, title, foods)
+            VALUES (%s, %s, %s);
+            """
+        cur.execute(query, recipe_data)
+    conn.close()
