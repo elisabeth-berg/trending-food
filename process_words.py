@@ -20,7 +20,8 @@ def clean_one_doc(doc):
                   'inch', 'divided', 'pounds', 'pound', 'plus', 'ml', 'thinly',
                   'sliced', 'finely', 'chopped', 'dried', 'ounce', 'ounces',
                   'grated', 'one', 'minced', 'tsp', 'tbsp', 'rinsed', 'like',
-                  'g', 'grams', 'washed'}
+                  'g', 'grams', 'washed', 'milliliters', 'milliliter', 'liter',
+                  'liters', 'pint', 'pints'}
 
     porter = PorterStemmer()
     keep_chars = set(string.ascii_lowercase + ' ')

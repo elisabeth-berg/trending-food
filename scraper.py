@@ -44,22 +44,23 @@ def get_ingredients(href):
     return (date, title, foods)
 
 
-def store_all_data():
+def store_all_data(clear=True):
     """
     Query all pages, store the results in food_db.
-    Note that the database is cleared first!
+    Note that the database is cleared first as the default!
     """
     conn = psycopg2.connect("dbname=food_db")
     cur = conn.cursor()
     conn.autocommit = True
-    cur.execute("""DELETE FROM recipes;""")
+    if clear:
+        cur.execute("""DELETE FROM recipes;""")
     for page in range(1, 204):
         store_page_data(page)
 
 
 def store_page_data(page):
     """
-    Store the recipe results from a single page into food_db. 
+    Store the recipe results from a single page into food_db.
     """
     conn = psycopg2.connect("dbname=food_db")
     cur = conn.cursor()
