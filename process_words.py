@@ -1,6 +1,7 @@
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
+import re
 from nltk.stem.porter import PorterStemmer
 
 def clean_one_doc(doc):
@@ -19,10 +20,12 @@ def clean_one_doc(doc):
                   'inch', 'divided', 'pounds', 'pound', 'plus', 'ml', 'thinly',
                   'sliced', 'finely', 'chopped', 'dried', 'ounce', 'ounces',
                   'grated', 'one', 'minced', 'tsp', 'tbsp', 'rinsed', 'like',
-                  'g', 'grams'}
+                  'g', 'grams', 'washed'}
 
     porter = PorterStemmer()
     keep_chars = set(string.ascii_lowercase + ' ')
+    doc = doc.lower()
+    doc = re.sub(r'(-|/)', ' ', doc)
     doc = ''.join(ch for ch in doc if ch in keep_chars)
     doc = word_tokenize(doc)
     sw = set(stopwords.words('english'))
@@ -30,3 +33,8 @@ def clean_one_doc(doc):
     doc = [word for word in doc if not word in sw]
     doc_stems = [porter.stem(word) for word in doc]
     return doc
+
+def clean_all(docs):
+    """
+    """
+    pass
