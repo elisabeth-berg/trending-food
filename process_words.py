@@ -35,7 +35,41 @@ def clean_one_doc(doc):
     doc_stems = [porter.stem(word) for word in doc]
     return doc
 
-def clean_all(docs):
+
+def vectorize_all(df):
+    vectorizer = TfidfVectorizer(tokenizer=clean_one_doc)
+    years = set(date.year for date in df.post_date)
+    food_yrs = {}
+    vectors = {}
+    for yr in years:
+        food_yrs[yr] = df[df['post_date'].dt.year.values == yr].index
+        food_stems = df.iloc[food_yrs[yr]]['foods']
+        X = vectorizer.fit_transform(food_stems)
+        features = vectorizer.get_feature_names()
+        vectors[yr] = (X, features)
+    return food_yrs, vectors
+
+
+def make_clusters(X, features, n_features, best_k=None):
     """
     """
-    pass
+    maxk = len(features)//20
+    silhouette = np.zeros(maxk)
+    if best_k == None:
+        for k in range(1, maxk):
+            km = KMeans(k)
+            y = km.fit_predict(X)
+            if k > 1:
+                silhouette[k] = silhouette_score(X, y)
+        best_k = np.argmax(silhouette) + 2
+
+    kmeans = KMeans(n_clusters=best_k).fit(X)
+    centroids = kmeans.cluster_centers_
+
+    for i, c in enumerate(centroids):
+        ind = c.argsort()[::-1][:n_features]
+        print('Cluster {}'.format(i))
+        for i in ind:
+            print('{} || {}'.format(features[i], c[i]))
+        print('----------------------')
+    return centroids, silhouette
