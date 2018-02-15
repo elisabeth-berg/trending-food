@@ -1,8 +1,13 @@
+import numpy as np
+import pandas as pd
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
 import re
 from nltk.stem.porter import PorterStemmer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import silhouette_score
+from sklearn.cluster import KMeans
 
 def clean_one_doc(doc):
     """
@@ -36,22 +41,51 @@ def clean_one_doc(doc):
     return doc
 
 
-def vectorize_all(df):
+def vectorize_all(df, feature):
+    """
+    Input
+    ------
+    df : Pandas dataframe with 'post_date' column
+    feature : name of column on which to perform tfidf
+
+    Output
+    ------
+    yrs : dict of form {year : index_list}, containing the indices of all
+          rows corresponding to that year
+    vectors : dict of form {year : (tfidf_matrix, word_list)},
+          where tfidf_matrix is a sparse matrix for the features in this
+          year, and word_list is the corpus of words.
+    """
     vectorizer = TfidfVectorizer(tokenizer=clean_one_doc)
     years = set(date.year for date in df.post_date)
     food_yrs = {}
     vectors = {}
     for yr in years:
-        food_yrs[yr] = df[df['post_date'].dt.year.values == yr].index
-        food_stems = df.iloc[food_yrs[yr]]['foods']
-        X = vectorizer.fit_transform(food_stems)
+        yrs[yr] = df[df['post_date'].dt.year.values == yr].index
+        stems = df.iloc[yrs[yr]][feature]
+        X = vectorizer.fit_transform(stems)
         features = vectorizer.get_feature_names()
         vectors[yr] = (X, features)
-    return food_yrs, vectors
+    return yrs, vectors
 
 
-def make_clusters(X, features, n_features, best_k=None):
+def make_clusters(X, features, n_words=10, best_k=None):
     """
+    Cluster the documents in X using KMeans clustering
+    Print the top words for each cluster
+
+    Input
+    ------
+    X : matrix of tfidf vectors (output of vectorize_all)
+    features : list of words corresponding to the columns of X
+               (output of vectorize_all)
+    n_words :  number of words to display for each cluster when printing
+    best_k :   int, a previously determined number of clusters
+
+    Output
+    ------
+    centroids : cluster centers from KMeans
+    silhouette : list of silhouette scores for various values of k
     """
     maxk = len(features)//20
     silhouette = np.zeros(maxk)
@@ -67,7 +101,7 @@ def make_clusters(X, features, n_features, best_k=None):
     centroids = kmeans.cluster_centers_
 
     for i, c in enumerate(centroids):
-        ind = c.argsort()[::-1][:n_features]
+        ind = c.argsort()[::-1][:n_words]
         print('Cluster {}'.format(i))
         for i in ind:
             print('{} || {}'.format(features[i], c[i]))
