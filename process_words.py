@@ -27,6 +27,9 @@ def clean_one_doc(doc):
                   'grated', 'one', 'minced', 'tsp', 'tbsp', 'rinsed', 'like',
                   'g', 'grams', 'washed', 'milliliters', 'milliliter', 'liter',
                   'liters', 'pint', 'pints'}
+    food_stops2 = {'salt', 'pepper', 'fresh', 'freshly',
+                   'ground', 'extra', 'needed', 'buttah', 'foodcom', 'https',
+                   'recipe', 'recipes', 'room', 'temperature', 'peeled', 'seeds'}
 
     porter = PorterStemmer()
     keep_chars = set(string.ascii_lowercase + ' ')
@@ -36,6 +39,7 @@ def clean_one_doc(doc):
     doc = word_tokenize(doc)
     sw = set(stopwords.words('english'))
     sw.update(food_stops)
+    sw.update(food_stops2)
     doc = [word for word in doc if not word in sw]
     doc_stems = [porter.stem(word) for word in doc]
     return doc
@@ -58,7 +62,7 @@ def vectorize_all(df, feature):
     """
     vectorizer = TfidfVectorizer(tokenizer=clean_one_doc)
     years = set(date.year for date in df.post_date)
-    food_yrs = {}
+    yrs = {}
     vectors = {}
     for yr in years:
         yrs[yr] = df[df['post_date'].dt.year.values == yr].index
@@ -69,7 +73,18 @@ def vectorize_all(df, feature):
     return yrs, vectors
 
 
-def make_clusters(X, features, n_words=10, best_k=None):
+def get_best_k(X, maxk=20):
+    silhouette = np.zeros(maxk)
+    for k in range(1, maxk):
+        km = KMeans(k)
+        y = km.fit_predict(X)
+        if k > 1:
+            silhouette[k] = silhouette_score(X, y)
+    best_k = np.argmax(silhouette) + 2
+    return best_k, silhouette
+
+
+def make_clusters(X, features, best_k, n_words=10, print=False):
     """
     Cluster the documents in X using KMeans clustering
     Print the top words for each cluster
@@ -85,25 +100,14 @@ def make_clusters(X, features, n_words=10, best_k=None):
     Output
     ------
     centroids : cluster centers from KMeans
-    silhouette : list of silhouette scores for various values of k
     """
-    maxk = len(features)//20
-    silhouette = np.zeros(maxk)
-    if best_k == None:
-        for k in range(1, maxk):
-            km = KMeans(k)
-            y = km.fit_predict(X)
-            if k > 1:
-                silhouette[k] = silhouette_score(X, y)
-        best_k = np.argmax(silhouette) + 2
-
     kmeans = KMeans(n_clusters=best_k).fit(X)
     centroids = kmeans.cluster_centers_
-
-    for i, c in enumerate(centroids):
-        ind = c.argsort()[::-1][:n_words]
-        print('Cluster {}'.format(i))
-        for i in ind:
-            print('{} || {}'.format(features[i], c[i]))
-        print('----------------------')
-    return centroids, silhouette
+    if print:
+        for i, c in enumerate(centroids):
+            ind = c.argsort()[::-1][:n_words]
+            print('Cluster {}'.format(i))
+            for i in ind:
+                print('{} || {}'.format(features[i], c[i]))
+            print('----------------------')
+    return centroids
