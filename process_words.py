@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from nltk import pos_tag
 import string
 import re
 from nltk.stem.porter import PorterStemmer
@@ -114,7 +115,6 @@ def get_best_k(X, maxk=20):
     return best_k
 
 
-
 def clean_one_doc(doc):
     """
     Tokenizer function for ingredient lists, can be used as input to TfidfVectorizer.
@@ -128,16 +128,13 @@ def clean_one_doc(doc):
     doc_stems : cleaned, stemmed, & lemmatized doc
     """
     food_stops = {'pinch', 'serving', 'teaspoon', 'teaspoons', 'tablespoon',
-                  'tablespoons', 'cup', 'cups', 'optional', 'taste', 'oz',
-                  'package', 'see', 'note', 'small', 'medium', 'large', 'cut',
-                  'inch', 'divided', 'pounds', 'pound', 'plus', 'ml', 'thinly',
-                  'sliced', 'finely', 'chopped', 'dried', 'ounce', 'ounces',
-                  'grated', 'one', 'minced', 'tsp', 'tbsp', 'rinsed', 'like',
-                  'g', 'grams', 'washed', 'milliliters', 'milliliter', 'liter',
-                  'liters', 'pint', 'pints'}
-    food_stops2 = {'salt', 'pepper', 'fresh', 'freshly',
-                   'ground', 'extra', 'needed', 'buttah', 'foodcom', 'https',
-                   'recipe', 'recipes', 'room', 'temperature', 'peeled', 'seeds'}
+                  'tablespoons', 'cup', 'cups', 'taste', 'oz', 'package', 'note',
+                  'cut', 'inch', 'pounds', 'pound', 'ml', 'ounce', 'ounces', 'qt', 'quart'
+                  'one', 'tsp', 'tbsp', 'g', 'grams','milliliters', 'milliliter', 'liter',
+                  'liters', 'pint', 'pints', 'ground', 'small', 'medium', 'large', 'size'}
+    food_stops2 = {'salt', 'pepper', 'buttah', 'foodcom', 'https', 'etc', 'can', 'quality',
+                   'recipe', 'recipes', 'room', 'temperature', 'seeds','piece', 'pieces',
+                   'thick', 'thin', 'thinly', 'part', 'firm', 'favorite', 'envelope'}
 
     porter = PorterStemmer()
     keep_chars = set(string.ascii_lowercase + ' ')
@@ -145,9 +142,10 @@ def clean_one_doc(doc):
     doc = re.sub(r'(-|/)', ' ', doc)
     doc = ''.join(ch for ch in doc if ch in keep_chars)
     doc = word_tokenize(doc)
+    doc = [word[0] for word in pos_tag(doc) if word[1] in {'NN', 'NNS'}]
     sw = set(stopwords.words('english'))
     sw.update(food_stops)
     sw.update(food_stops2)
     doc = [word for word in doc if not word in sw]
     doc_stems = [porter.stem(word) for word in doc]
-    return doc
+    return doc_stems
