@@ -26,7 +26,7 @@ def make_top_words(df, feature, n):
     return top_words, label_list
 
 
-def vectorize_all(df, feature):
+def vectorize_all(df, feature, split_years=True):
     """
     Input
     ------
@@ -45,12 +45,18 @@ def vectorize_all(df, feature):
     years = set(date.year for date in df.post_date)
     yrs = {}
     vectors = {}
-    for yr in years:
-        yrs[yr] = df[df['post_date'].dt.year.values == yr].index
-        stems = df.iloc[yrs[yr]][feature]
+    if split_years:
+        for yr in years:
+            yrs[yr] = df[df['post_date'].dt.year.values == yr].index
+            stems = df.iloc[yrs[yr]][feature]
+            X = vectorizer.fit_transform(stems)
+            features = vectorizer.get_feature_names()
+            vectors[yr] = (X, features)
+    else:
+        stems = df[feature]
         X = vectorizer.fit_transform(stems)
         features = vectorizer.get_feature_names()
-        vectors[yr] = (X, features)
+        vectors = (X, features)
     return yrs, vectors
 
 
@@ -133,8 +139,8 @@ def clean_one_doc(doc):
                   'one', 'tsp', 'tbsp', 'g', 'grams','milliliters', 'milliliter', 'liter',
                   'liters', 'pint', 'pints', 'ground', 'small', 'medium', 'large', 'size'}
     food_stops2 = {'salt', 'pepper', 'buttah', 'foodcom', 'https', 'etc', 'can', 'quality',
-                   'recipe', 'recipes', 'room', 'temperature', 'seeds','piece', 'pieces',
-                   'thick', 'thin', 'thinly', 'part', 'firm', 'favorite', 'envelope'}
+                   'recipe', 'recipes', 'room', 'temperature', 'seeds', 'piece', 'pieces',
+                   'thick', 'thin', 'thinly', 'part', 'firm', 'favorite', 'envelope', 'envelopes'}
 
     porter = PorterStemmer()
     keep_chars = set(string.ascii_lowercase + ' ')

@@ -33,11 +33,13 @@ def store_recipes_type(r_type):
     cur = conn.cursor()
     conn.autocommit = True
     for page in range(1, pg+1):
-        store_page_data(page)
-        time.sleep(5)       #wait 5 secs after every page
+        if page % 20 == 0:
+            print("Scraping page {}....".format(page))
+        store_page_data(page, "recipes_all")
+    #    time.sleep(10)       #wait 10 secs after every page
 
 
-def store_all_data(clear=True):
+def store_recipes(clear=True):
     """
     Query pages from main recipe page, store the results in food_db.
     Note that the database is cleared first as the default!
@@ -51,7 +53,7 @@ def store_all_data(clear=True):
         store_page_data(page)
 
 
-def store_page_data(page):
+def store_page_data(page, db_table):
     """
     Store the recipe results from a single page into food_db.
     """
@@ -63,10 +65,11 @@ def store_page_data(page):
         recipe_data = get_ingredients(url)
         query = """
             INSERT INTO
-            recipes (post_date, title, foods)
+            {} (post_date, title, foods)
             VALUES (%s, %s, %s);
-            """
+            """.format(db_table)
         cur.execute(query, recipe_data)
+        time.sleep(2) #wait 2 secs after every entry
     conn.close()
 
 
