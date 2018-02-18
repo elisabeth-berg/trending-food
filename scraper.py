@@ -36,7 +36,7 @@ def store_recipes_type(r_type):
         if page % 20 == 0:
             print("Scraping page {}....".format(page))
         store_page_data(page, "recipes_all")
-    #    time.sleep(10)       #wait 10 secs after every page
+        time.sleep(10)       #wait 10 secs after every page
 
 
 def store_recipes(clear=True):
