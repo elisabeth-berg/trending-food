@@ -13,7 +13,7 @@ def time_food_plot(df, food, n_months, path=None, save=True):
     counts = dates.resample('{}M'.format(n_months)).sum()
     counts['ones'].fillna(0, inplace=True)
     fig, ax = plt.subplots(figsize=(20, 5))
-    counts['ones'].plot(ax=ax)
+    ax.plot(counts.index, counts['ones'], color='blue', linewidth=2)
     ax.set_title('Popularity of {}'.format(food))
     if save:
         fig.savefig(path)
