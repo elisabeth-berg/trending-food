@@ -4,6 +4,7 @@ from app.plot import make_plot
 from src.plotters import yearly_food_plot
 from io import BytesIO
 import pandas as pd
+df = pd.read_pickle('data/featured_recipes.pkl')
 #from flask_wtf import FlaskForm
 #from wtforms.validators import DataRequired
 
@@ -13,15 +14,8 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/submit', methods=['POST'])
-def submit():
-    submission = request.form
-    return render_template('submit.html', submission=submission)
-
-@app.route('/fig/<ingredient>', methods=['GET', 'POST'])
+@app.route('/fig/<ingredient>', methods=['GET'])
 def fig(ingredient):
-#    fig = make_plot(ingredient)
-    df = pd.read_pickle('data/featured_recipes.pkl')
     fig = yearly_food_plot(df, ingredient)
     img = BytesIO()
     fig.savefig(img)
