@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>Food Trends</title>
+  <meta name="description" content="Trends of Food Over Time">
+  <meta name="author" content="Liz Berg">
+</head>
+
+<body>
+
+  <h1>Trending Foods</h1>
+
+  <h3>Type an ingredient below to see its use in recipes over the years. </h3>
+  <form action = "http://localhost:5000/submit" method="POST">
+    <input type="text" name="ingredient">
+    <input type="submit" value="submit">
+  </form>
+
+  <hr>
+    {% block content %}{% endblock %}
+  </hr>
+
+</body>
+</html>
