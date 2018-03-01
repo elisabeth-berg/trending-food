@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request
 from app import app
 from app.plot import make_plot
+from src.plotters import yearly_food_plot
 from io import BytesIO
+import pandas as pd
 #from flask_wtf import FlaskForm
 #from wtforms.validators import DataRequired
 
@@ -18,9 +20,9 @@ def submit():
 
 @app.route('/fig/<ingredient>', methods=['GET', 'POST'])
 def fig(ingredient):
-    fig = make_plot(ingredient)
+#    fig = make_plot(ingredient)
+    df = pd.read_pickle('data/featured_recipes.pkl')
+    fig = yearly_food_plot(df, ingredient)
     img = BytesIO()
     fig.savefig(img)
     return img.getvalue(), 200, {'Content-Type': 'image/png'}
-#    img.seek(0)
-#    return send_file(img, mimetype='image/png')

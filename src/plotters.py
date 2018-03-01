@@ -33,9 +33,9 @@ def yearly_food_plot(df, food, path=None, save=False):
     months = np.array(range(1, 13))
     mo_counts = np.zeros((len(range(2009, 2018)), len(months)))
     mo_counts_all = np.zeros((len(range(2009, 2018)), len(months)))
-    
+
     fig, ax = plt.subplots(figsize=(10, 5))
-    
+
     for i, year in enumerate(range(2009, 2018)):
         year = str(year)
         d1 = dates[year].resample('1M').sum()
@@ -50,7 +50,7 @@ def yearly_food_plot(df, food, path=None, save=False):
             color=plt.cm.cool(10 + i*30),
             alpha=0.3,
             label=year)
-             
+
     avg_counts = np.mean(mo_counts, axis=0)
     ax.plot(months, avg_counts, linewidth=4, color='blue')
     ax.set_xlim([0, 15])
@@ -62,3 +62,4 @@ def yearly_food_plot(df, food, path=None, save=False):
     ax.legend()
     if save:
         fig.savefig(path)
+    return fig
