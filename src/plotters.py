@@ -30,7 +30,7 @@ def yearly_food_plot(df, food, all_plots=True, path=None, save=False):
 
     dates_all = df[['id', 'post_date']]
     dates_all.index = dates_all['post_date']
-    dates_all['total_counts'] = np.ones(len(dates_all))
+    dates_all['total_counts'] = np.ones(len(dates_all['id']))
 
     months = np.array(range(1, 13))
     mo_counts = np.zeros((len(range(2009, 2018)), len(months)))
