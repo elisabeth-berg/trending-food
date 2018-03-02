@@ -3,10 +3,11 @@ import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 from nltk.stem.porter import PorterStemmer
 
 
-def time_food_plot(df, food, n_months, path=None, save=True):
+def time_food_plot(df, food, n_months, path=None, save=False):
     porter = PorterStemmer()
     food_stem = porter.stem(food.lower())
     dates = df.loc[[i for i in df.index if food_stem in df.loc[i, 'food_stems']], ['id', 'post_date']]
@@ -14,11 +15,12 @@ def time_food_plot(df, food, n_months, path=None, save=True):
     dates['ones'] = np.ones(len(dates))
     counts = dates.resample('{}M'.format(n_months)).sum()
     counts['ones'].fillna(0, inplace=True)
-    fig, ax = plt.subplots(figsize=(20, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(counts.index, counts['ones'], color='blue', linewidth=2)
-    ax.set_title('Popularity of {}'.format(food))
+    ax.set_title('Popularity of {} Over Time'.format(food))
     if save:
         fig.savefig(path)
+    return fig
 
 
 def yearly_food_plot(df, food, all_plots=True, path=None, save=False):
@@ -30,7 +32,7 @@ def yearly_food_plot(df, food, all_plots=True, path=None, save=False):
 
     dates_all = df[['id', 'post_date']]
     dates_all.index = dates_all['post_date']
-    dates_all['total_counts'] = np.ones(len(dates_all['id']))
+    dates_all['total_counts'] = np.ones(len(dates_all))
 
     months = np.array(range(1, 13))
     mo_counts = np.zeros((len(range(2009, 2018)), len(months)))

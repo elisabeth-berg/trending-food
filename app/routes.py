@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from app import app
 from app.plot import make_plot
-from src.plotters import yearly_food_plot
+from src.plotters import yearly_food_plot, time_food_plot
 from src.process_words import you_might_like
 from io import BytesIO
 import pandas as pd
@@ -15,9 +15,17 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/fig/<ingredient>', methods=['GET'])
-def fig(ingredient):
-    fig = yearly_food_plot(df, ingredient, all_plots=False)
+@app.route('/fig1/<ingredient>', methods=['GET'])
+def fig1(ingredient):
+    fig = yearly_food_plot(df, ingredient, all_plots=True)
+    img = BytesIO()
+    fig.savefig(img)
+    return img.getvalue(), 200, {'Content-Type': 'image/png'}
+
+
+@app.route('/fig2/<ingredient>', methods=['GET'])
+def fig2(ingredient):
+    fig = time_food_plot(df, ingredient, n_months=2)
     img = BytesIO()
     fig.savefig(img)
     return img.getvalue(), 200, {'Content-Type': 'image/png'}

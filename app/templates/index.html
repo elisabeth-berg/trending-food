@@ -7,11 +7,12 @@
   <script>
     update_graph = function() {
       food = $('#ingredient').val()
-      img_tag = '<img src="/fig/' + food + '">'
-      $('div#graph').html(img_tag)
+      img_tag1 = '<img src="/fig1/' + food + '">'
+      $('div#graph1').html(img_tag1)
+      img_tag2 = '<img src="/fig2/' + food + '">'
+      $('div#graph2').html(img_tag2)
+
       pairs_tag = '<src="/recommend/' + food + '">'
-
-
       $.post({
         url: "/recommend/" + food,
         data: JSON.stringify(food),
@@ -38,7 +39,8 @@
 
   <hr />
     {% block content %}{% endblock %}
-  <div id="graph"></div>
+  <div id="graph1"></div>
+  <div id="graph2"></div>
   <div id="pairs">Placeholder</div>
   <p><span class="hidden">Placeholder</span></p>
 
