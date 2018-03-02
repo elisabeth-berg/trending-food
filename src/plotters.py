@@ -21,7 +21,7 @@ def time_food_plot(df, food, n_months, path=None, save=True):
         fig.savefig(path)
 
 
-def yearly_food_plot(df, food, path=None, save=False):
+def yearly_food_plot(df, food, all_plots=True, path=None, save=False):
     porter = PorterStemmer()
     food_stem = porter.stem(food.lower())
     dates = df.loc[[i for i in df.index if food_stem in df.loc[i, 'food_stems']], ['id', 'post_date']]
@@ -47,14 +47,15 @@ def yearly_food_plot(df, food, path=None, save=False):
         counts['percentage'] = counts['food_counts'] / counts['total_counts']
         counts['mos'] = [date.month for date in counts['food_counts'].index]
         mo_counts[i][counts['mos'] -1] = counts['percentage']
-        ax.plot(months, mo_counts[i],
-            linewidth=2,
-            color=plt.cm.cool(10 + i*30),
-            alpha=0.3,
-            label=year)
+        if all_plots:
+            ax.plot(months, mo_counts[i],
+                linewidth=2,
+                color=plt.cm.cool(10 + i*30),
+                alpha=0.3,
+                label=year)
 
     avg_counts = np.mean(mo_counts, axis=0)
-    ax.plot(months, avg_counts, linewidth=4, color='blue', label='Average')
+    ax.plot(months, avg_counts, linewidth=4, color='blue', label='2009-2017\nAverage')
     ax.set_xlim([0, 15])
     ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     ax.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
