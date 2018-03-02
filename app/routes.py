@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from app import app
 from app.plot import make_plot
 from src.plotters import yearly_food_plot
@@ -23,6 +23,8 @@ def fig(ingredient):
     return img.getvalue(), 200, {'Content-Type': 'image/png'}
 
 
-@app.route('/recommend/<ingredient>', methods=['POST'])
+@app.route('/recommend/<ingredient>', methods=['GET','POST'])
 def recommend(ingredient):
-    return you_might_like(full_G, ingredient, 10)
+    pairings = you_might_like(full_G, ingredient, 10)
+    print(pairings)
+    return pairings[0], 200

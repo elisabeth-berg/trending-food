@@ -9,16 +9,23 @@
       food = $('#ingredient').val()
       img_tag = '<img src="/fig/' + food + '">'
       $('div#graph').html(img_tag)
+      pairs_tag = '<src="/recommend/' + food + '">'
+
 
       $.post({
-        url: "/recommend",
-        data: food,
+        url: "/recommend/" + food,
+        data: JSON.stringify(food),
         success: function(pairings){
-          $("span#pairs").html("Pairs are" + pairings[0])
+          $(".hidden").css("display","inline").html("Pairs are" + pairings[0]);
         }
-      })
+      });
     }
   </script>
+  <style>
+    .hidden {
+        display: none;
+      }
+  </style>
 </head>
 
 <body>
@@ -32,7 +39,8 @@
   <hr />
     {% block content %}{% endblock %}
   <div id="graph"></div>
-  <p><span id="pairs"></span></p>
+  <div id="pairs">Placeholder</div>
+  <p><span class="hidden">Placeholder</span></p>
 
 </body>
 </html>
