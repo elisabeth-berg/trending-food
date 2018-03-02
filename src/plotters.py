@@ -54,12 +54,12 @@ def yearly_food_plot(df, food, path=None, save=False):
             label=year)
 
     avg_counts = np.mean(mo_counts, axis=0)
-    ax.plot(months, avg_counts, linewidth=4, color='blue')
+    ax.plot(months, avg_counts, linewidth=4, color='blue', label='Average')
     ax.set_xlim([0, 15])
     ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     ax.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-    ax.set_title('Average Yearly Popularity of {}'.format(food))
+    ax.set_title('Seasonal Popularity of {}'.format(food))
     ax.set_xlabel('Month')
     ax.legend()
     if save:
