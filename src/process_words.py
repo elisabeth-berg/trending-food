@@ -9,6 +9,12 @@ from nltk.stem.porter import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans
+from itertools import combinations
+import networkx as nx
+import nxpd
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+
 
 
 def make_top_words(df, feature, n):
@@ -158,3 +164,48 @@ def clean_one_doc(doc):
     doc = [word for word in doc if not word in sw]
     doc_stems = [porter.stem(word) for word in doc]
     return doc_stems
+
+
+def make_graph(df, full_X, n, plot=False):
+    """
+    Input
+    -----
+    labels : list of foods
+    total_tfidf : np array, the sums of tfidf for each food across all documents
+    recipes : 
+    n : int, number of features 
+    
+    Output
+    -----
+    G : nx graph object with weighted nodes
+    """
+   # y, full_X = vectorize_all(df, 'foods', split_years=False)
+    full_X, labels = full_X
+    total_tfidf = np.sum(full_X, axis=0) 
+    total_tfidf = np.asarray(total_tfidf)[0]
+    
+    top_n = np.array([np.array(labels)[i] for i in np.argsort(total_tfidf)[-1:-n-1:-1]])
+    edges = list(combinations(top_n, 2))
+    weighted_edges = {edge: 0 for edge in edges}
+    for recipe in df['food_stems']:
+        common = top_n[np.in1d(top_n, recipe)]
+        common_pairs = list(combinations(common, 2))
+        for pair in common_pairs:
+            weighted_edges[pair] += 1
+    weighted_edges = [(k[0], k[1], v) for k, v in weighted_edges.items()]
+    
+    G = nx.Graph()
+    G.add_weighted_edges_from(weighted_edges)
+    
+    if plot:
+        fig, ax = plt.subplots(figsize=(12,12))
+        node_and_degree=G.degree()
+        weights = np.array([G.get_edge_data(u,v)['weight'] for u,v in G.edges()])
+        # Draw graph
+        pos = nx.spring_layout(G, k=6/np.sqrt(G.order()))
+        _ = nx.draw_networkx_edges(G, pos=pos, ax=ax, alpha=0.2, width=weights**(1/3), 
+                                   edge_color=plt.cm.Blues(weights*5))
+        _ = nx.draw_networkx_nodes(G, #node_size=[v**2 for v in dict(node_and_degree).values()],
+                                   pos=pos, ax=ax, node_color='lightblue')
+        _ = nx.draw_networkx_labels(G, pos=pos, font_family="serif", font_weight="ultralight")
+    return G
