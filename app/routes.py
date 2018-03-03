@@ -25,13 +25,13 @@ def fig1(ingredient):
 
 @app.route('/fig2/<ingredient>', methods=['GET'])
 def fig2(ingredient):
-    fig = time_food_plot(df, ingredient, n_months=2)
+    fig = time_food_plot(df, ingredient, n_months=3)
     img = BytesIO()
     fig.savefig(img)
     return img.getvalue(), 200, {'Content-Type': 'image/png'}
 
 
-@app.route('/recommend/<ingredient>', methods=['GET','POST'])
+@app.route('/recommend/<ingredient>', methods=['GET'])
 def recommend(ingredient):
     pairings = you_might_like(full_G, ingredient, 10)
     print(pairings)

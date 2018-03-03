@@ -1,23 +1,42 @@
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use('agg')
+#matplotlib.use('agg')
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 from nltk.stem.porter import PorterStemmer
+from datetime import timedelta
 
 
 def time_food_plot(df, food, n_months, path=None, save=False):
     porter = PorterStemmer()
     food_stem = porter.stem(food.lower())
+
     dates = df.loc[[i for i in df.index if food_stem in df.loc[i, 'food_stems']], ['id', 'post_date']]
     dates.index = dates['post_date']
-    dates['ones'] = np.ones(len(dates))
+    dates['food_counts'] = np.ones(len(dates))
     counts = dates.resample('{}M'.format(n_months)).sum()
-    counts['ones'].fillna(0, inplace=True)
+    counts['food_counts'].fillna(0, inplace=True)
+
+    dates_all = df[['id', 'post_date']]
+    dates_all.index = dates_all['post_date']
+    dates_all['total_counts'] = np.ones(len(dates_all))
+    counts_all = dates_all.resample('1M').sum()
+    counts_all['total_counts'].fillna(0, inplace=True)
+
+    final = counts[['food_counts']].join(counts_all[['total_counts']], how='left')
+    final.fillna(0, inplace=True)
+    final['percentage'] = final['food_counts'] / final['total_counts']
+
+    yearly_counts = final.resample('1Y').sum()
+    yearly_counts['yearly_percentage'] = yearly_counts['food_counts']/yearly_counts['total_counts']
+    yearly_counts.index = yearly_counts.index - timedelta(days = 180)
+
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(counts.index, counts['ones'], color='blue', linewidth=2)
+    ax.plot(final.index, final['percentage'], color='purple', alpha=0.5, linewidth=2)
+    ax.plot(yearly_counts.index, yearly_counts['yearly_percentage'], color='blue', linewidth=4)
     ax.set_title('Popularity of {} Over Time'.format(food))
+    ax.set_xlabel('Year')
     if save:
         fig.savefig(path)
     return fig
