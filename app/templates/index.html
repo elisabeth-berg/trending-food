@@ -13,15 +13,9 @@
       $('div#graph2').html(img_tag2)
       $(".hidden").css("display","inline")
       $.getJSON("/recommend/" + food, function( data ) {
-        var items = [];
         $.each( data, function( key, val ) {
-          items.push( "<li id='" + key + "'>" + val + "</li>" );
+          $("<li id='" + key + "'>" + val + "</li>").appendTo("ul")
         });
-
-        $( "<ul/>", {
-          class: "my-new-list",
-          html: items.join( "" )
-        }).appendTo( "body" );
       });
     }
   </script>
@@ -44,7 +38,9 @@
     {% block content %}{% endblock %}
   <div id="graph1"></div>
   <div id="graph2"></div>
-  <p><span class="hidden">For cooking inspiration, try:</span></p>
-
+  <span class="hidden">
+    <h4>For cooking inspiration, try:</h4>
+    <ul></ul>
+  </span>
 </body>
 </html>
