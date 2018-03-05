@@ -3,7 +3,7 @@
   <title>Food Trends</title>
   <meta name="description" content="Trends of Food Over Time">
   <meta name="author" content="Liz Berg">
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
     update_graph = function() {
       food = $('#ingredient').val()
@@ -11,21 +11,24 @@
       $('div#graph1').html(img_tag1)
       img_tag2 = '<img src="/fig2/' + food + '">'
       $('div#graph2').html(img_tag2)
+      $(".hidden").css("display","inline")
+      $.getJSON("/recommend/" + food, function( data ) {
+        var items = [];
+        $.each( data, function( key, val ) {
+          items.push( "<li id='" + key + "'>" + val + "</li>" );
+        });
 
-      pairs_tag = '<src="/recommend/' + food + '">'
-      $.post({
-        url: "/recommend/" + food,
-        data: JSON.stringify(food),
-        success: function(pairings){
-          $(".hidden").css("display","inline").html("Pairs are" + pairings[0]);
-        }
+        $( "<ul/>", {
+          class: "my-new-list",
+          html: items.join( "" )
+        }).appendTo( "body" );
       });
     }
   </script>
   <style>
     .hidden {
-        display: none;
-      }
+      display: none;
+    }
   </style>
 </head>
 
@@ -41,8 +44,7 @@
     {% block content %}{% endblock %}
   <div id="graph1"></div>
   <div id="graph2"></div>
-  <div id="pairs">Placeholder</div>
-  <p><span class="hidden">Placeholder</span></p>
+  <p><span class="hidden">For cooking inspiration, try:</span></p>
 
 </body>
 </html>

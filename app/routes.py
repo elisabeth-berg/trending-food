@@ -6,6 +6,7 @@ from src.process_words import you_might_like
 from io import BytesIO
 import pandas as pd
 import networkx as nx
+from flask import jsonify
 df = pd.read_pickle('data/featured_recipes.pkl')
 full_G = nx.read_gpickle('data/food_graph.gpickle')
 
@@ -34,5 +35,7 @@ def fig2(ingredient):
 @app.route('/recommend/<ingredient>', methods=['GET'])
 def recommend(ingredient):
     pairings = you_might_like(full_G, ingredient, 10)
-    print(pairings)
-    return pairings[0], 200
+    keys = range(len(pairings))
+    d = dict(zip(keys, pairings))
+    print(d)
+    return jsonify(d)
