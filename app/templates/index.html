@@ -5,28 +5,36 @@
   <meta name="author" content="Liz Berg">
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
-    update_graph = function() {
+    show_info = function() {
       food = $('#ingredient').val()
       img_tag1 = '<img src="/fig1/' + food + '">'
       $('div#graph1').html(img_tag1)
       img_tag2 = '<img src="/fig2/' + food + '">'
       $('div#graph2').html(img_tag2)
       $(".hidden").css("display","inline")
-      $.getJSON("/recommend/" + food, function( data ) {
-        $.each( data, function( key, val ) {
-          if (parseInt(key) < 5) {
-            $("<li id='" + key + "'>" + val + "</li>").appendTo("ul#list1")
+      $.getJSON("/recommend/" + food, function( recommendations ) {
+        $.each( recommendations, function( num, food ) {
+          if (parseInt(num) < 5) {
+            $("<li id='" + num + "'>" + food + "</li>").appendTo("ul#list1")
           }
-          else if (parseInt(key) < 10){
-            $("<li id='" + key + "'>" + val + "</li>").appendTo("ul#list2")
+          else if (parseInt(num) < 10){
+            $("<li id='" + num + "'>" + food + "</li>").appendTo("ul#list2")
           }
           else {
-            $("<li id='" + key + "'>" + val + "</li>").appendTo("ul#list3")
+            $("<li id='" + num + "'>" + food + "</li>").appendTo("ul#list3")
           }
         });
       });
     }
   </script>
+  <script>
+    $("#ingredient").keyup(function(event) {
+      if (event.keyCode === 13) {
+        $("#searchButton").click();
+      }
+    });
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <style>
     .hidden {display: none;}
     ul      {display: inline-block;}
@@ -39,7 +47,7 @@
 
   <h3>Type an ingredient below to see its use in recipes over the years. </h3>
   <input type="text" id="ingredient">
-  <button onClick="update_graph()">Submit</button>
+  <button type="button" id="searchButton" onClick="show_info()">Submit</button>
 
   <hr />
 
