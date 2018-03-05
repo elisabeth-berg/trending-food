@@ -6,7 +6,6 @@ from src.process_words import you_might_like
 from io import BytesIO
 import pandas as pd
 import networkx as nx
-from flask import jsonify
 df = pd.read_pickle('data/featured_recipes.pkl')
 full_G = nx.read_gpickle('data/food_graph.gpickle')
 
