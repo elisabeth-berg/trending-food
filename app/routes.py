@@ -34,8 +34,7 @@ def fig2(ingredient):
 
 @app.route('/recommend/<ingredient>', methods=['GET'])
 def recommend(ingredient):
-    pairings = you_might_like(full_G, ingredient, 10)
+    pairings = you_might_like(full_G, ingredient, 15)
     keys = range(len(pairings))
     d = dict(zip(keys, pairings))
-    print(d)
     return jsonify(d)
