@@ -231,5 +231,5 @@ def you_might_like(full_G, food, n):
     food_stem = porter.stem(food.lower())
     pairs = sorted(full_G[food_stem].items(),
                    key=lambda edge: edge[1]['weight'])[::-1]
-    return [food[0] for food in pairs[:10+len(too_common)]
+    return [food[0] for food in pairs[:n+len(too_common)]
                     if food[0] not in too_common][:n]
