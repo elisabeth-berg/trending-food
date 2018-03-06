@@ -227,6 +227,8 @@ def you_might_like(full_G, food, n):
     pairings : list of length n (ingredient stems)
     """
     too_common = ['butter', 'oil', 'water', 'egg', 'powder', 'sugar', 'juic']
+    other = ['clove', 'sea', 'stick', 'kosher', 'extract', 'confection', 'sauc',
+             'yolk', 'past', 'bunch']
     porter = PorterStemmer()
     food_stem = porter.stem(food.lower())
     pairs = sorted(full_G[food_stem].items(),
