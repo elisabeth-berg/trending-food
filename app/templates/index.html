@@ -4,36 +4,24 @@
   <meta name="description" content="Trends of Food Over Time">
   <meta name="author" content="Liz Berg">
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script>
-    show_info = function() {
-      food = $('#ingredient').val()
-      img_tag1 = '<img src="/fig1/' + food + '">'
-      $('div#graph1').html(img_tag1)
-      img_tag2 = '<img src="/fig2/' + food + '">'
-      $('div#graph2').html(img_tag2)
-      $(".hidden").css("display","inline")
-      $.getJSON("/recommend/" + food, function( recommendations ) {
-        $.each( recommendations, function( num, food ) {
-          if (parseInt(num) < 5) {
-            $("<li id='" + num + "'>" + food + "</li>").appendTo("ul#list1")
-          }
-          else if (parseInt(num) < 10){
-            $("<li id='" + num + "'>" + food + "</li>").appendTo("ul#list2")
-          }
-          else {
-            $("<li id='" + num + "'>" + food + "</li>").appendTo("ul#list3")
-          }
-        });
-      });
+  <style media="screen">
+    #list1 {
+      column-count: 3;
     }
-  </script>
-  <script>
-    $("#ingredient").keyup(function(event) {
-      if (event.keyCode === 13) {
-        $("#searchButton").click();
-      }
-    });
-  </script>
+
+    #list1 li {
+      list-style-type: none;
+    }
+
+    #list1 li:before {
+      content: '\000B7';
+      display: inline-block;
+      margin-right: 7px;
+      font-size: 33px;
+      line-height: 9px;
+      vertical-align: middle;
+    }
+  </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <style>
     .hidden {display: none;}
@@ -42,22 +30,43 @@
 </head>
 
 <body>
-
   <h1>Trending Foods</h1>
 
   <h3>Type an ingredient below to see its use in recipes over the years. </h3>
-  <input type="text" id="ingredient">
-  <button type="button" id="searchButton" onClick="show_info()">Submit</button>
-
+  <form id="search-form">
+    <input type="text" id="ingredient">
+    <input type="submit" value="Submit">
+  </form>
   <hr />
-
-  <div id="graph1"></div>
-  <div id="graph2"></div>
   <span class="hidden">
     <h4>For cooking inspiration, try:</h4>
     <ul id="list1"></ul>
-    <ul id="list2"></ul>
-    <ul id="list3"></ul>
   </span>
+  <div id="graph1"></div>
+  <div id="graph2"></div>
+  <script>
+
+    show_info = function() {
+      var $list = $('#list1');
+
+      food = $('#ingredient').val();
+      img_tag1 = '<img src="/fig1/' + food + '">';
+      $('div#graph1').html(img_tag1);
+      img_tag2 = '<img src="/fig2/' + food + '">';
+      $('div#graph2').html(img_tag2);
+      $list.empty();
+      $(".hidden").css("display","inline");
+      $.getJSON("/recommend/" + food, function( recommendations ) {
+        $.each( recommendations, function( num, food ) {
+          $list.append("<li id='" + num + "'>" + food + "</li>");
+        });
+      });
+    }
+
+    $('#search-form').submit(function(e) {
+      e.preventDefault();
+      show_info();
+    });
+  </script>
 </body>
 </html>
