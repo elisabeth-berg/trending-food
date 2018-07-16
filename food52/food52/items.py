@@ -2,6 +2,7 @@ import scrapy
 
 
 class RecipeItem(scrapy.Item):
+    url = scrapy.Field()
     title = scrapy.Field()
     author = scrapy.Field()
     author_url = scrapy.Field()

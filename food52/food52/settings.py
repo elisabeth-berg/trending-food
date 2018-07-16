@@ -32,6 +32,15 @@ DOWNLOAD_DELAY = 3
 CONCURRENT_REQUESTS_PER_DOMAIN = 16
 CONCURRENT_REQUESTS_PER_IP = 16
 
+DATABASE = {
+    'drivername': 'postgres',
+    'host': 'localhost',
+    'port': '5432',
+    'username': 'lizberg',
+    'password': '',
+    'database': 'food_db'
+}
+
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
 
@@ -64,9 +73,10 @@ CONCURRENT_REQUESTS_PER_IP = 16
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'food52.pipelines.Food52Pipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'food52.pipelines.CleanseRecipePipeline': 300,
+    'food52.pipelines.SaveRecipePipeline': 400,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

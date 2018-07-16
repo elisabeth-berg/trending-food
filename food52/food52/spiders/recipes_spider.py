@@ -11,6 +11,7 @@ class RecipesSpider(scrapy.Spider):
             yield scrapy.Request(url, callback=self.parse_recipe)
 
     def parse_recipe(self, response):
+        url = response.url
         title = response.css(
             '.article-header-title::text').extract_first().strip()
         header = response.css('.article-header-meta__item')
@@ -28,6 +29,7 @@ class RecipesSpider(scrapy.Spider):
         ingredients = ' '.join([food for food in ingredients if food !=''])
         tags = response.css('.recipe-tag-landing-pages a::text').extract()
         recipe = RecipeItem(
+            url = url,
             title = title,
             author = author,
             author_url = author_url,
