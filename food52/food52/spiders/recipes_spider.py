@@ -7,6 +7,11 @@ class RecipesSpider(scrapy.Spider):
 
 
     def parse(self, response):
+        if response.url == 'https://food52.com/sitemap/recipes':
+            last_page = response.css('.pagination a::text').extract()[-2]
+            for page in range(last_page):
+                next_url = 'https://food52.com/sitemap/recipes'
+                yield scrapy.Request(next_url, callback=self.parse)
         for url in response.css('.content-listing a::attr(href)').extract():
             yield scrapy.Request(url, callback=self.parse_recipe)
 
