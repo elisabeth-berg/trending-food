@@ -7,11 +7,22 @@ class RecipesSpider(scrapy.Spider):
 
 
     def parse(self, response):
-        if response.url == 'https://food52.com/sitemap/recipes':
-            last_page = response.css('.pagination a::text').extract()[-2]
-            for page in range(last_page):
-                next_url = 'https://food52.com/sitemap/recipes'
-                yield scrapy.Request(next_url, callback=self.parse)
+        """
+        On the first page, extract the total number of pages,
+        then send each sitemap page to parse_page.
+        """
+        last_page = response.css('.pagination a::text').extract()[-2]
+        self.logger.info('Found {} pages'.format(last_page))
+        for page in range(int(last_page)):
+            next_url = 'https://food52.com/sitemap/recipes?page={}'.format(last_page)
+            self.logger.info('Parsing page {}'.format(page))
+            yield scrapy.Request(next_url, callback=self.parse_page)
+
+    def parse_page(self, response):
+        """
+        Extract each recipe on the page, then send the recipe url to
+        parse_recipe.
+        """
         for url in response.css('.content-listing a::attr(href)').extract():
             yield scrapy.Request(url, callback=self.parse_recipe)
 
