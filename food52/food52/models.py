@@ -33,5 +33,5 @@ class RecipeModel(DeclarativeBase):
     rating = Column(Float, nullable=True)
     n_ratings = Column(Integer, nullable=True)
     n_faves = Column(Integer)
-    ingredients = Column(String)
+    ingredients = Column(ARRAY(String), nullable=True)
     tags = Column(ARRAY(String), nullable=True)

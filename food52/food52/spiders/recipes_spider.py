@@ -12,7 +12,7 @@ class RecipesSpider(scrapy.Spider):
         then send each sitemap page to parse_page.
         """
     #    last_page = response.css('.pagination a::text').extract()[-2]
-        last_page = 10
+        last_page = 3
         self.logger.info('Found {} pages'.format(last_page))
         for page in range(int(last_page)):
             next_url = 'https://food52.com/sitemap/recipes?page={}'.format(page)
@@ -43,6 +43,7 @@ class RecipesSpider(scrapy.Spider):
         n_comments = header[2].css('span::text').extract_first()
         comment_dates = response.css(
             '.comment .comment__byline .datetime::text').extract()
+        # can't for the life of me figure out how to get this rating info
         rating = ''
         n_ratings = ''
         n_faves = response.css('.button__label::text').extract_first()
